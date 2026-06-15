@@ -39,43 +39,49 @@
             50% { height: 120px; }
         }
 
-        /* บังคับขนาดตารางแบบ Fixed และกำหนดความกว้างรวม */
+        /* ตั้งค่าตารางให้ล็อกขนาดตายตัว */
         table { 
             border-collapse: separate; border-spacing: 8px; 
             background: white; border-radius: 20px; 
             padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
             z-index: 1; margin-top: 20px; border: 3px solid #524388;
             table-layout: fixed;
-            width: 620px; 
+            width: 600px; /* กำหนดความกว้างล็อกไว้ */
         }
         
-        /* บังคับช่องเป็นสี่เหลี่ยมจัตุรัสเท่ากันหมด และจัดการคำไม่ให้ล้นออกนอกช่อง */
+        /* บังคับทุกช่องเป็นสี่เหลี่ยมจัตุรัสขนาดเท่ากัน และคำไม่ล้นช่อง */
         td {
             width: 110px; 
             height: 110px; 
             border: 2px solid #524388;
             border-radius: 15px; 
             text-align: center; 
-            vertical-align: middle; /* จัดคำให้อยู่กึ่งกลางแนวตั้ง */
+            vertical-align: middle; 
             font-weight: bold; 
             color: #524388; 
             cursor: pointer; 
             transition: 0.3s; 
-            padding: 8px; 
-            font-size: 13px; /* ปรับขนาดฟอนต์ลงเล็กน้อยเพื่อให้คำยาวๆ อยู่ในช่องสบายๆ */
+            padding: 6px; 
+            font-size: 13px; 
             box-sizing: border-box;
             
-            /* ชุดคำสั่งป้องกันตัวหนังสือล้นออกนอกช่อง */
+            /* ป้องกันคำล้นออกนอกช่องเด็ดขาด */
             word-wrap: break-word;
-            word-break: break-all; /* หักคำทันทีเมื่อชนขอบ */
-            overflow: hidden; /* บล็อกไม่ให้ส่วนใดๆ ล้นทะลัก */
-            hyphens: auto;
+            word-break: break-all; 
+            overflow: hidden; 
         }
         td:hover { background-color: #f0f0f0; }
         td.marked { background-color: #524388 !important; color: white; border-color: #F1921E; }
         
-        .free-space { border: 2px solid #F1921E !important; background: #fff3e0 !important; cursor: default; }
-        .free-space img { width: 55px; height: 55px; border-radius: 50%; display: block; margin: 0 auto; }
+        /* ปรับดีไซน์ช่องตรงกลาง (FREE SPACE) ไม่ให้ต้องพึ่งพารูปภาพภายนอก */
+        .free-space { 
+            border: 2px solid #F1921E !important; 
+            background: #fff3e0 !important; 
+            cursor: default;
+            color: #F1921E !important;
+            font-size: 20px !important;
+            text-transform: uppercase;
+        }
 
         .btn-reset {
             margin-top: 20px; padding: 10px 25px; font-size: 16px; font-weight: bold;
@@ -113,14 +119,12 @@
     </div>
 
     <script>
+        // คลังคำศัพท์ทั้งหมด 80 คำเต็ม (ไทย 60 + อังกฤษ 20)
         const allWords = [
-            // English Words (20 คำ)
             "Sincere", "Honest", "Transparency", "Trustworthy", "Accountability",
             "Ethical", "Integrity", "Fair", "Truth", "Reliable",
             "Responsible", "Authenticity", "Commitment", "Dedication", "Uprightness",
             "Probity", "Principle", "Respect", "Empathy", "Consistency",
-
-            // Thai Words (60 คำ)
             "ซื่อสัตย์", "จริงใจ", "โปร่งใส", "ซื่อตรง", "ตรงไปตรงมา", 
             "สุจริต", "ความถูกต้อง", "รักษาคำพูด", "เที่ยงตรง", "น่าเชื่อถือ", 
             "ไม่โกง", "ไว้ใจได้", "มั่นคง", "รับผิดชอบ", "ตรวจสอบได้", 
@@ -139,18 +143,21 @@
 
         function createBingo() {
             const table = document.getElementById('bingoTable');
-            table.innerHTML = ""; 
+            table.innerHTML = ""; // ล้างตารางเก่า
             hasAlertedBingo = false; 
             
+            // สลับคำศัพท์และดึงออกมา 24 คำ
             let shuffled = [...allWords].sort(() => 0.5 - Math.random()).slice(0, 24);
             
             for (let i = 0; i < 5; i++) {
                 let row = table.insertRow();
                 for (let j = 0; j < 5; j++) {
                     let cell = row.insertCell();
+                    
+                    // ช่องตรงกลาง (แถวที่ 3 หลักที่ 3 หรือ Index 2,2)
                     if (i === 2 && j === 2) {
                         cell.className = 'free-space marked';
-                        cell.innerHTML = '<img src="image_bc9682.png" alt="FREE" onerror="this.src=\'https://placehold.co/60x60?text=FREE\'">';
+                        cell.innerHTML = '🌟<br>FREE';
                     } else {
                         cell.innerHTML = shuffled.pop();
                         cell.onclick = function() { 
@@ -188,6 +195,7 @@
             document.getElementById('bingoOverlay').style.display = 'none';
         }
 
+        // รันฟังก์ชันสร้างตารางทันทีเมื่อโหลดหน้าเว็บ
         createBingo();
     </script>
 </body>
