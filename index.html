@@ -3,200 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Integrity Bingo Competition</title>
+    <title>Integrity Bingo</title>
     <style>
-        :root {
-            /* ธีมสีหลักตามรูป  */
-            --primary-purple: #524388;
-            --primary-orange: #F1921E;
-            --bg-light: #f4f7f6;
-        }
-
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
+            background-color: #f8f9fa;
+            padding-bottom: 50px;
         }
 
-        /* หัวข้อเด่นสวยงาม [cite: 81] */
         h1 { 
-            font-size: clamp(24px, 5vw, 48px);
-            color: var(--primary-purple); 
-            margin-bottom: 20px; 
+            color: #524388; 
+            margin-top: 30px; 
             text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.1);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* ตารางสมมาตรเป๊ะ (UX/UI Best Practice)  */
-        .bingo-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            width: 100%;
-            max-width: 600px;
-            aspect-ratio: 1 / 1; /* บังคับตารางจัตุรัส  */
-            background: white;
-            padding: 15px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: 4px solid var(--primary-purple); /* กรอบสีม่วงเข้ม  */
+        .chart-container {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 120px;
+            display: flex; justify-content: space-around; align-items: flex-end;
+            z-index: 0; opacity: 0.3; pointer-events: none;
+        }
+        .bar { width: 40px; border-radius: 5px 5px 0 0; animation: stockMove 2.5s infinite ease-in-out; }
+        .bar:nth-child(4n+1) { background-color: #e74c3c; }
+        .bar:nth-child(4n+2) { background-color: #f39c12; }
+        .bar:nth-child(4n+3) { background-color: #f1c40f; }
+        .bar:nth-child(4n+4) { background-color: #3498db; }
+
+        @keyframes stockMove {
+            0%, 100% { height: 40px; }
+            50% { height: 120px; }
         }
 
-        .cell {
-            background: #fff;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 5px;
-            /* ปรับขนาดตัวอักษรอัตโนมัติ  */
-            font-size: clamp(10px, 2.8vw, 16px);
-            font-weight: 600;
-            color: var(--primary-purple);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            user-select: none;
-            overflow: hidden;
+        table { 
+            border-collapse: separate; border-spacing: 8px; 
+            background: white; border-radius: 20px; 
+            padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            z-index: 1; margin-top: 20px; border: 3px solid #524388;
+        }
+        td {
+            width: 115px; height: 115px; border: 2px solid #524388;
+            border-radius: 15px; text-align: center; font-weight: bold; 
+            color: #524388; cursor: pointer; transition: 0.3s; 
+            padding: 5px; font-size: 14px;
+            box-sizing: border-box;
             word-wrap: break-word;
         }
+        td:hover { background-color: #f0f0f0; }
+        td.marked { background-color: #524388 !important; color: white; border-color: #F1921E; }
+        
+        .free-space { border: 2px solid #F1921E !important; background: #fff3e0 !important; cursor: default; }
+        .free-space img { width: 60px; height: 60px; border-radius: 50%; display: block; margin: 0 auto; }
 
-        .cell:hover:not(.free-space) { 
-            background-color: #f0edff; 
-            transform: scale(1.03);
+        .btn-reset {
+            margin-top: 20px; padding: 10px 25px; font-size: 16px; font-weight: bold;
+            color: white; background-color: #524388; border: none; border-radius: 25px;
+            cursor: pointer; z-index: 1; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+        .btn-reset:hover { background-color: #3f326d; transform: translateY(-2px); }
 
-        /* สีช่องเมื่อถูกเลือก (ม่วง) [cite: 67] */
-        .cell.marked {
-            background-color: var(--primary-purple);
-            color: white;
-            border-color: var(--primary-orange);
-        }
-
-        /* ช่อง Free Space ตรงกลาง [cite: 71, 73] */
-        .free-space {
-            background-color: #f8f9fa;
-            border: 3px solid var(--primary-orange);
-            cursor: default;
-        }
-
-        .free-space img {
-            width: 80%;
-            height: 80%;
-            object-fit: contain;
-            border-radius: 50%; /* โลโก้วงกลม  */
-        }
-
-        /* เอฟเฟกต์ Bingo ฉลอง [cite: 71, 73] */
         #bingoOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); display: none;
-            flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100;
-            animation: fadeIn 0.5s;
+            background: rgba(255, 255, 255, 0.95); display: none;
+            justify-content: center; align-items: center; z-index: 10;
+            flex-direction: column; cursor: pointer;
         }
-
-        #bingoText { 
-            font-size: clamp(40px, 15vw, 100px);
-            color: var(--primary-orange); 
-            font-weight: bold; 
-            text-shadow: 0 0 20px var(--primary-orange);
-            margin-bottom: 20px;
-        }
-
-        .firework { font-size: 50px; animation: explode 1.5s infinite; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes explode {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
+        #bingoText { font-size: 80px; color: #524388; font-weight: bold; text-shadow: 5px 5px #F1921E; }
+        .close-hint { font-size: 18px; color: #666; margin-top: 20px; }
     </style>
 </head>
 <body>
 
     <h1>INTEGRITY BINGO</h1>
-    <div class="bingo-grid" id="bingoGrid"></div>
+    
+    <div class="chart-container">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
 
-    <div id="bingoOverlay" onclick="this.style.display='none'">
+    <table id="bingoTable"></table>
+    
+    <button class="btn-reset" onclick="createBingo()">เริ่มเกมใหม่ / สลับตาราง</button>
+
+    <div id="bingoOverlay" onclick="closeOverlay()">
         <div id="bingoText">BINGO!</div>
-        <div style="display: flex; gap: 20px;">
-            <div class="firework">🎆</div>
-            <div class="firework">✨</div>
-            <div class="firework">🎇</div>
-        </div>
-        <p style="color: white; margin-top: 20px;">คลิกเพื่อเล่นต่อ</p>
+        <div class="close-hint">(คลิกตรงไหนก็ได้เพื่อปิดหน้าต่างนี้และเล่นต่อ)</div>
     </div>
 
     <script>
-        // คำศัพท์ทั้งหมดสำหรับการประกวด [cite: 87, 88]
-        const words = [
-            "ซื่อสัตย์", "จริงใจ", "โปร่งใส", "ซื่อตรง", "ตรงไปตรงมา", "สุจริต", "ความถูกต้อง", "รักษาคำพูด", "เที่ยงตรง", "น่าเชื่อถือ", 
-            "ไม่โกง", "ไว้ใจได้", "มั่นคง", "รับผิดชอบ", "ตรวจสอบได้", "สัจจะ", "เป็นคนดี", "ยุติธรรม", "คุณธรรม", "ไม่โกหก", 
-            "ชัดเจน", "เชื่อใจ", "เปิดเผย", "ขยัน", "ครบถ้วน", "ถูกต้อง", "ตรงต่อเวลา", "เคารพกฎ", "เคารพหน้าที่", "สม่ำเสมอ", 
-            "มีวินัย", "กล้าหาญ", "อดทน", "เสียสละ", "เมตตา", "เห็นอกเห็นใจ", "ให้เกียรติ", "เคารพกัน", "สามัคคี", "ร่วมมือ", 
-            "ตั้งใจ", "มุ่งมั่น", "ทุ่มเท", "รับฟัง", "ใจกว้าง", "รอบคอบ", "พัฒนา", "เรียนรู้", "ความจริง", "ความโปร่งใส", 
-            "ความรับผิดชอบ", "ความน่าเชื่อถือ", "ความยุติธรรม", "ความไว้วางใจ", "ความซื่อตรง", "ความมุ่งมั่น", "ความสม่ำเสมอ", "ความเคารพ", "ความร่วมมือ", "ความเมตตา", 
-            "Sincere", "Honest", "Transparency", "Trustworthy", "Accountability", "Ethical", "Integrity", "Fair", "Truth", "Reliable", 
-            "Responsible", "Authenticity", "Commitment", "Dedication", "Uprightness", "Probity", "Principle", "Respect", "Empathy", "Consistency"
-        ];
-
-        let markedCells = Array(25).fill(false);
-        markedCells[12] = true; // ช่องกลางเป็น True เสมอ
-
-        function initGame() {
-            const grid = document.getElementById('bingoGrid');
-            // สุ่มคำ 24 คำไม่ซ้ำกัน [cite: 88]
-            const shuffled = [...words].sort(() => Math.random() - 0.5).slice(0, 24);
-            
-            grid.innerHTML = '';
-            for (let i = 0; i < 25; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                
-                if (i === 12) { // ช่องกลาง Free Space [cite: 71, 73]
-                    cell.className += ' free-space marked';
-                    cell.innerHTML = '<img src="image_bc9682.png" alt="Logo">';
-                } else {
-                    cell.textContent = shuffled.pop();
-                    cell.dataset.index = i;
-                    cell.onclick = function() { toggleCell(this); };
-                }
-                grid.appendChild(cell);
-            }
-        }
-
-        function toggleCell(cell) {
-            const index = cell.dataset.index;
-            markedCells[index] = !markedCells[index];
-            cell.classList.toggle('marked');
-            checkBingo(); // ตรวจสอบทุกครั้งที่คลิก [cite: 71, 73]
-        }
-
-        function checkBingo() {
-            const bingoLines = [
-                // แนวนอน
-                [0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24],
-                // แนวตั้ง
-                [0, 5, 10, 15, 20], [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], [3, 8, 13, 18, 23], [4, 9, 14, 19, 24],
-                // แนวทแยง
-                [0, 6, 12, 18, 24], [4, 8, 12, 16, 20]
-            ];
-
-            let isBingo = bingoLines.some(line => line.every(index => markedCells[index]));
-
-            // แสดงหน้าจอฉลอง [cite: 71, 73]
-            document.getElementById('bingoOverlay').style.display = isBingo ? 'flex' : 'none';
-        }
-
-        initGame();
-    </script>
-</body>
-</html>
+        // รวมคำศัพท์ทั้งหมด 80 คำเต็มครบถ้วน (ไทย 60 คำ + อังกฤษ 20 คำ)
+        const allWords =
