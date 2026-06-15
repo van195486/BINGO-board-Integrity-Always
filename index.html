@@ -6,14 +6,13 @@
     <title>Integrity Bingo</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             background-color: #f8f9fa;
-            padding-bottom: 50px;
         }
 
         h1 { 
@@ -21,12 +20,14 @@
             margin-top: 30px; 
             text-transform: uppercase;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
         }
 
+        /* กราฟแท่งสีสัน */
         .chart-container {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 120px;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 200px;
             display: flex; justify-content: space-around; align-items: flex-end;
-            z-index: 0; opacity: 0.3; pointer-events: none;
+            z-index: 0; opacity: 0.6;
         }
         .bar { width: 40px; border-radius: 5px 5px 0 0; animation: stockMove 2.5s infinite ease-in-out; }
         .bar:nth-child(4n+1) { background-color: #e74c3c; }
@@ -35,168 +36,31 @@
         .bar:nth-child(4n+4) { background-color: #3498db; }
 
         @keyframes stockMove {
-            0%, 100% { height: 40px; }
-            50% { height: 120px; }
+            0%, 100% { height: 60px; }
+            50% { height: 200px; }
         }
 
-        /* ตั้งค่าตารางให้ล็อกขนาดตายตัว */
+        /* [ปรับปรุงจุดที่ 1] ปรับตารางแบบ Responsive รองรับคอมและมือถือพอดีจอ */
         table { 
             border-collapse: separate; border-spacing: 8px; 
             background: white; border-radius: 20px; 
             padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
             z-index: 1; margin-top: 20px; border: 3px solid #524388;
             table-layout: fixed;
-            width: 600px; /* กำหนดความกว้างล็อกไว้ */
+            width: 95%;
+            max-width: 600px; /* ขนาดสูงสุดเมื่อดูบนคอมพิวเตอร์ */
         }
-        
-        /* บังคับทุกช่องเป็นสี่เหลี่ยมจัตุรัสขนาดเท่ากัน และคำไม่ล้นช่อง */
+
+        /* [ปรับปรุงจุดที่ 1] บังคับสี่เหลี่ยมจัตุรัสและคำไม่ล้นด้วยหน่วย Aspect Ratio */
         td {
-            width: 110px; 
-            height: 110px; 
+            width: 20%; /* แบ่ง 5 ช่องเท่ากัน 100% */
+            aspect-ratio: 1 / 1; /* บังคับให้เป็นสี่เหลี่ยมจัตุรัสเสมอไม่ว่าจะอยู่บนจอไหน */
             border: 2px solid #524388;
-            border-radius: 15px; 
-            text-align: center; 
-            vertical-align: middle; 
-            font-weight: bold; 
-            color: #524388; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            padding: 6px; 
-            font-size: 13px; 
+            border-radius: 15px; text-align: center; font-weight: bold; 
+            color: #524388; cursor: pointer; transition: 0.3s; 
+            padding: 5px; 
+            font-size: calc(10px + 0.4vw); /* ปรับขนาดฟอนต์ยืดหยุ่นตามหน้าจออัตโนมัติ */
             box-sizing: border-box;
+            vertical-align: middle;
             
-            /* ป้องกันคำล้นออกนอกช่องเด็ดขาด */
-            word-wrap: break-word;
-            word-break: break-all; 
-            overflow: hidden; 
-        }
-        td:hover { background-color: #f0f0f0; }
-        td.marked { background-color: #524388 !important; color: white; border-color: #F1921E; }
-        
-        /* ปรับดีไซน์ช่องตรงกลาง (FREE SPACE) ไม่ให้ต้องพึ่งพารูปภาพภายนอก */
-        .free-space { 
-            border: 2px solid #F1921E !important; 
-            background: #fff3e0 !important; 
-            cursor: default;
-            color: #F1921E !important;
-            font-size: 20px !important;
-            text-transform: uppercase;
-        }
-
-        .btn-reset {
-            margin-top: 20px; padding: 10px 25px; font-size: 16px; font-weight: bold;
-            color: white; background-color: #524388; border: none; border-radius: 25px;
-            cursor: pointer; z-index: 1; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .btn-reset:hover { background-color: #3f326d; transform: translateY(-2px); }
-
-        #bingoOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.95); display: none;
-            justify-content: center; align-items: center; z-index: 10;
-            flex-direction: column; cursor: pointer;
-        }
-        #bingoText { font-size: 80px; color: #524388; font-weight: bold; text-shadow: 5px 5px #F1921E; }
-        .close-hint { font-size: 18px; color: #666; margin-top: 20px; }
-    </style>
-</head>
-<body>
-
-    <h1>INTEGRITY BINGO</h1>
-    
-    <div class="chart-container">
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-    </div>
-
-    <table id="bingoTable"></table>
-    
-    <button class="btn-reset" onclick="createBingo()">เริ่มเกมใหม่ / สลับตาราง</button>
-
-    <div id="bingoOverlay" onclick="closeOverlay()">
-        <div id="bingoText">BINGO!</div>
-        <div class="close-hint">(คลิกตรงไหนก็ได้เพื่อปิดหน้าต่างนี้และเล่นต่อ)</div>
-    </div>
-
-    <script>
-        // คลังคำศัพท์ทั้งหมด 80 คำเต็ม (ไทย 60 + อังกฤษ 20)
-        const allWords = [
-            "Sincere", "Honest", "Transparency", "Trustworthy", "Accountability",
-            "Ethical", "Integrity", "Fair", "Truth", "Reliable",
-            "Responsible", "Authenticity", "Commitment", "Dedication", "Uprightness",
-            "Probity", "Principle", "Respect", "Empathy", "Consistency",
-            "ซื่อสัตย์", "จริงใจ", "โปร่งใส", "ซื่อตรง", "ตรงไปตรงมา", 
-            "สุจริต", "ความถูกต้อง", "รักษาคำพูด", "เที่ยงตรง", "น่าเชื่อถือ", 
-            "ไม่โกง", "ไว้ใจได้", "มั่นคง", "รับผิดชอบ", "ตรวจสอบได้", 
-            "สัจจะ", "เป็นคนดี", "ยุติธรรม", "คุณธรรม", "ไม่โกหก", 
-            "ชัดเจน", "เชื่อใจ", "เปิดเผย", "ขยัน", "ครบถ้วน", 
-            "ถูกต้อง", "ตรงต่อเวลา", "เคารพกฎ", "เคารพหน้าที่", "สม่ำเสมอ", 
-            "มีวินัย", "กล้าหาญ", "อดทน", "เสียสละ", "เมตตา", 
-            "เห็นอกเห็นใจ", "ให้เกียรติ", "เคารพกัน", "สามัคคี", "ร่วมมือ", 
-            "ตั้งใจ", "มุ่งมั่น", "ทุ่มเท", "รับฟัง", "ใจกว้าง", 
-            "รอบคอบ", "พัฒนา", "เรียนรู้", "ความจริง", "ความโปร่งใส", 
-            "ความรับผิดชอบ", "ความน่าเชื่อถือ", "ความยุติธรรม", "ความไว้วางใจ", "ความซื่อตรง", 
-            "ความมุ่งมั่น", "ความสม่ำเสมอ", "ความเคารพ", "ความร่วมมือ", "ความเมตตา"
-        ];
-
-        let hasAlertedBingo = false; 
-
-        function createBingo() {
-            const table = document.getElementById('bingoTable');
-            table.innerHTML = ""; // ล้างตารางเก่า
-            hasAlertedBingo = false; 
-            
-            // สลับคำศัพท์และดึงออกมา 24 คำ
-            let shuffled = [...allWords].sort(() => 0.5 - Math.random()).slice(0, 24);
-            
-            for (let i = 0; i < 5; i++) {
-                let row = table.insertRow();
-                for (let j = 0; j < 5; j++) {
-                    let cell = row.insertCell();
-                    
-                    // ช่องตรงกลาง (แถวที่ 3 หลักที่ 3 หรือ Index 2,2)
-                    if (i === 2 && j === 2) {
-                        cell.className = 'free-space marked';
-                        cell.innerHTML = '🌟<br>FREE';
-                    } else {
-                        cell.innerHTML = shuffled.pop();
-                        cell.onclick = function() { 
-                            this.classList.toggle('marked'); 
-                            checkBingo(); 
-                        };
-                    }
-                }
-            }
-        }
-
-        function checkBingo() {
-            const grid = Array.from(document.querySelectorAll('td')).map(c => c.classList.contains('marked'));
-            let isBingo = false;
-
-            for (let i = 0; i < 5; i++) {
-                if ([0,1,2,3,4].every(j => grid[i*5 + j]) || [0,1,2,3,4].every(j => grid[j*5 + i])) {
-                    isBingo = true;
-                }
-            }
-            if ([0,6,12,18,24].every(i => grid[i]) || [4,8,12,16,20].every(i => grid[i])) {
-                isBingo = true;
-            }
-
-            if (isBingo && !hasAlertedBingo) {
-                document.getElementById('bingoOverlay').style.display = 'flex';
-                hasAlertedBingo = true; 
-            } 
-            if (!isBingo) {
-                hasAlertedBingo = false;
-            }
-        }
-
-        function closeOverlay() {
-            document.getElementById('bingoOverlay').style.display = 'none';
-        }
-
-        // รันฟังก์ชันสร้างตารางทันทีเมื่อโหลดหน้าเว็บ
-        createBingo();
-    </script>
-</body>
-</html>
+            /* ป้องกันคำล้นช่อง
