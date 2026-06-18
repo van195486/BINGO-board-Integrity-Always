@@ -1,256 +1,294 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Integrity Always</title>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrity Bingo 4x4</title>
 
-        body {
-            font-family: 'Prompt', sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #0a3a70 0%, #031a3a 100%);
-            padding: 15px;
-        }
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(
+        135deg,
+        #0b041e 0%,
+        #140b34 40%,
+        #1d1145 70%,
+        #3b1c75 100%
+    );
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+    overflow-x: hidden;
+}
 
-        .app-container {
-            width: 100%;
-            max-width: 500px;
-            background: linear-gradient(180deg, #1b62a6 0%, #104276 100%);
-            border-radius: 25px;
-            padding: 25px 15px 20px 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
-        }
+#logo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 140px;
+}
 
-        /* ส่วนหัว Header ที่เพิ่มชื่อกิจกรรมเข้าไป */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            margin-bottom: 15px;
-            padding: 0 5px;
-        }
+h1 {
+    /* ปรับเป็นสีส้มสว่างเด่นๆ ตาม CI ของ SET */
+    color: #f57c00; 
+    font-size: 54px;
+    font-weight: 900;
+    /* ซ้อนเลเยอร์เงาเพื่อให้ตัวอักษรสีส้มตัดขอบคมชัด สไตล์ Popular Vote */
+    text-shadow: 3px 3px 0px #ffffff, 6px 6px 0px #1d1145, 0px 10px 20px rgba(0,0,0,0.6);
+    margin-top: 40px;
+    margin-bottom: 30px;
+    text-align: center;
+    letter-spacing: 2px;
+}
 
-        .title-area {
-            flex: 1;
-        }
+.controls {
+    display: none;
+}
 
-        .title-main {
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            line-height: 1.1;
-        }
+table {
+    border-collapse: separate;
+    border-spacing: 10px;
+}
 
-        .title-main span {
-            color: #fca311;
-        }
+td {
+    width: 150px;
+    height: 150px;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 4px solid #f57c00; /* ใช้ขอบสีส้มแมตช์เข้ากับหัวข้อ */
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 18px;
+    color: #1d1145;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
 
-        .score-area {
-            text-align: right;
-            font-weight: 700;
-            font-size: 14px;
-        }
+td:hover {
+    transform: scale(1.04);
+    box-shadow: 0 10px 20px rgba(245, 124, 0, 0.3);
+}
 
-        .score-number {
-            font-size: 32px;
-            color: #fca311;
-            line-height: 1;
-        }
+td.marked {
+    background: linear-gradient(
+        135deg,
+        #1d1145,
+        #3b1c75
+    );
+    color: #ffffff;
+    border-color: #ffffff;
+}
 
-        .divider {
-            height: 2px;
-            background: rgba(255,255,255,0.1);
-            margin: 15px 5px 20px 5px;
-            position: relative;
-        }
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 5px;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: rgba(255,255,255,0.1);
-        }
+/* ปรับสไตล์ของ Bingo Message ให้ขึ้นพาดพับกลางหน้าจอแบบเต็มตา */
+#bingoMessage {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    background: rgba(29, 17, 69, 0.9); /* พื้นหลังโปร่งแสงสีเข้มเน้นข้อความ */
+    padding: 40px 0;
+    font-size: 72px;
+    font-weight: 900;
+    color: #fbbf24;
+    text-align: center;
+    text-shadow: 0 0 30px rgba(251, 191, 36, 0.8), 4px 4px 0px #f57c00;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    display: none;
+    z-index: 9999;
+    pointer-events: none; /* เพื่อไม่ให้บังการจิ้มปิดการบิงโก */
+    box-sizing: border-box;
+    white-space: nowrap;
+}
 
-        table { 
-            border-collapse: separate; 
-            border-spacing: 8px; 
-            width: 100%;
-            table-layout: fixed; 
-            margin-bottom: 5px;
-        }
-
-        td {
-            width: 20%; 
-            aspect-ratio: 1 / 1; 
-            background-color: #ffffff;
-            border: 2px solid #f6a122; 
-            border-radius: 12px; 
-            text-align: center; 
-            vertical-align: middle;
-            font-weight: 600; 
-            color: #0b2e59; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-            padding: 2px; 
-            font-size: clamp(10px, 2.8vw, 14px); 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            
-            /* บังคับให้อยู่บรรทัดเดียวเสมอ */
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        td:active {
-            transform: scale(0.95);
-        }
-
-        td.marked { 
-            background: linear-gradient(180deg, #ffb703 0%, #fb8500 100%);
-            color: white; 
-            border-color: #e67e22; 
-        }
-        
-        .free-space { 
-            background: linear-gradient(180deg, #ffb703 0%, #fb8500 100%) !important;
-            color: white !important;
-            border: none !important;
-            font-size: clamp(10px, 2.5vw, 14px) !important;
-            font-weight: 700 !important;
-            cursor: default;
-        }
-
-        #bingoOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(4, 33, 67, 0.95); display: none;
-            justify-content: center; align-items: center; z-index: 10;
-            flex-direction: column;
-        }
-        #bingoText { 
-            font-size: 80px; 
-            color: #ffffff; 
-            font-weight: 700; 
-            text-shadow: 0 0 20px #fca311, 4px 4px 0px #fca311; 
-        }
-        .close-hint { color: white; margin-top: 10px; font-weight: 300; }
-
-    </style>
+@media (max-width: 768px) {
+    td {
+        width: 85px;
+        height: 85px;
+        font-size: 13px;
+        border-width: 3px;
+    }
+    h1 {
+        font-size: 36px;
+        text-shadow: 2px 2px 0px #ffffff, 4px 4px 0px #1d1145;
+    }
+    #bingoMessage {
+        font-size: 48px;
+        padding: 25px 0;
+    }
+    #logo {
+        position: static;
+        margin-bottom: 10px;
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <div class="app-container">
-        <div class="header">
-            <div class="title-area">
-                <div class="title-main">Integrity <span>Always</span></div>
-            </div>
-            <div class="score-area">
-                BINGO<br>
-                <div class="score-number" id="scoreDisplay">0</div>
-            </div>
-        </div>
+<img id="logo" src="image_bc9682.png" alt="Integrity Always">
 
-        <div class="divider"></div>
+<h1>INTEGRITY BINGO</h1>
 
-        <table id="bingoTable"></table>
-    </div>
-    
-    <div id="bingoOverlay" onclick="this.style.display='none'">
-        <div id="bingoText">BINGO!</div>
-        <div class="close-hint">(แตะหน้าจอเพื่อเล่นต่อ)</div>
-    </div>
+<div class="controls"></div>
 
-    <script>
-        const allWords = [
-            "จริงใจ", "โปร่งใส", "สุจริต", "น่าเชื่อถือ", "มั่นคง", 
-            "รับผิดชอบ", "ยุติธรรม", "คุณธรรม", "ชัดเจน", "ขยัน", 
-            "ถูกต้อง", "สม่ำเสมอ", "มีวินัย", "กล้าหาญ", "อดทน", 
-            "เสียสละ", "เมตตา", "ให้เกียรติ", "สามัคคี", "ร่วมมือ", 
-            "ตั้งใจ", "ใจกว้าง", "รอบคอบ", "พัฒนา", "เรียนรู้",
-            "Honest", "Sincere", "Transparency", "Trustworthy", "Accountability",
-            "Ethical", "Integrity", "Fair", "Reliable", "Authenticity", 
-            "Commitment", "Principle", "Respect", "Empathy"
-        ];
+<table id="bingoTable"></table>
 
-        let totalBingos = 0;
-        let lastBingoState = false;
+<!-- บล็อกข้อความแสดงพาดกลางจอเมื่อชนะ -->
+<div id="bingoMessage">🎉 BINGO! 🎉</div>
 
-        function createBingo() {
-            const table = document.getElementById('bingoTable');
-            let shuffled = [...allWords].sort(() => 0.5 - Math.random()).slice(0, 24);
-            
-            for (let i = 0; i < 5; i++) {
-                let row = table.insertRow();
-                for (let j = 0; j < 5; j++) {
-                    let cell = row.insertCell();
-                    if (i === 2 && j === 2) {
-                        cell.className = 'free-space marked';
-                        cell.innerHTML = 'SET'; // เปลี่ยนข้อความเป็น SET
-                    } else {
-                        cell.innerHTML = shuffled.pop();
-                        cell.onclick = function() { 
-                            this.classList.toggle('marked'); 
-                            checkBingo(); 
-                        };
-                    }
-                }
-            }
-            // ปรับขนาดตัวอักษรหลังจากสร้างตารางเสร็จ
-            setTimeout(adjustFontSizeToFit, 0);
-        }
+<script>
 
-        // ค่อยๆ ลดขนาดฟอนต์ของคำที่ล้น ให้พอดีกับ 1 บรรทัดในช่อง
-        function adjustFontSizeToFit() {
-            const cells = document.querySelectorAll('#bingoTable td');
-            cells.forEach(cell => {
-                // รีเซ็ตค่าฟอนต์กลับเป็นค่าดั้งเดิมก่อน
-                cell.style.fontSize = ''; 
-                let currentSize = parseFloat(window.getComputedStyle(cell).fontSize);
-                
-                // ตรวจสอบว่าความกว้างเนื้อหาทะลุกรอบหรือไม่
-                // ถ้าทะลุ ให้ลดขนาดฟอนต์ทีละ 0.5 จนกว่าจะพอดี
-                while (cell.scrollWidth > cell.clientWidth - 4 && currentSize > 6) {
-                    currentSize -= 0.5;
-                    cell.style.fontSize = currentSize + 'px';
-                }
+const words = [
+    "ซื่อสัตย์",
+    "จริงใจ",
+    "โปร่งใส",
+    "ซื่อตรง",
+    "ตรงไปตรงมา",
+    "สุจริต",
+    "ความถูกต้อง",
+    "รักษาคำพูด",
+    "เที่ยงตรง",
+    "น่าเชื่อถือ",
+    "ไม่โกง",
+    "ไว้ใจได้",
+    "มั่นคง",
+    "รับผิดชอบ",
+    "ตรวจสอบได้",
+    "สัจจะ",
+    "เป็นคนดี",
+    "ยุติธรรม",
+    "คุณธรรม",
+    "ไม่โกหก",
+    "ชัดเจน",
+    "เชื่อใจ",
+    "เปิดเผย",
+    "ขยัน",
+    "ครบถ้วน",
+
+    "Empathy",
+    "Ethical",
+    "Fair",
+    "Honest",
+    "Integrity",
+    "Principle",
+    "Reliable",
+    "Respect",
+    "Sincere"
+];
+
+function createBingo() {
+
+    const table = document.getElementById('bingoTable');
+    table.innerHTML = '';
+
+    document.getElementById('bingoMessage').style.display = 'none';
+
+    const shuffled = [...words]
+        .sort(() => Math.random() - 0.5)
+        .slice(0,16);
+
+    for(let i = 0; i < 4; i++) {
+
+        const row = table.insertRow();
+
+        for(let j = 0; j < 4; j++) {
+
+            const cell = row.insertCell();
+
+            cell.innerHTML = shuffled[i * 4 + j];
+
+            cell.addEventListener('click', function() {
+                this.classList.toggle('marked');
+                checkBingo();
             });
+
+        }
+    }
+}
+
+function checkBingo() {
+
+    const table = document.getElementById('bingoTable');
+    const size = 4;
+
+    let bingo = false;
+
+    // แถว
+    for(let i = 0; i < size; i++) {
+
+        let complete = true;
+
+        for(let j = 0; j < size; j++) {
+
+            if(!table.rows[i].cells[j].classList.contains('marked')) {
+                complete = false;
+            }
+
         }
 
-        function checkBingo() {
-            const grid = Array.from(document.querySelectorAll('td')).map(c => c.classList.contains('marked'));
-            let isBingo = false;
-            
-            for (let i = 0; i < 5; i++) {
-                if ([0,1,2,3,4].every(j => grid[i*5 + j]) || [0,1,2,3,4].every(j => grid[j*5 + i])) isBingo = true;
+        if(complete) bingo = true;
+    }
+
+    // คอลัมน์
+    for(let j = 0; j < size; j++) {
+
+        let complete = true;
+
+        for(let i = 0; i < size; i++) {
+
+            if(!table.rows[i].cells[j].classList.contains('marked')) {
+                complete = false;
             }
-            if ([0,6,12,18,24].every(i => grid[i]) || [4,8,12,16,20].every(i => grid[i])) isBingo = true;
-            
-            if (isBingo && !lastBingoState) {
-                document.getElementById('bingoOverlay').style.display = 'flex';
-                totalBingos++;
-                document.getElementById('scoreDisplay').innerText = totalBingos;
-            }
-            
-            lastBingoState = isBingo;
+
         }
 
-        // จัดการให้ปรับฟอนต์ใหม่ด้วยเมื่อผู้ใช้หมุนหน้าจอหรือย่อขยาย
-        window.addEventListener('resize', adjustFontSizeToFit);
+        if(complete) bingo = true;
+    }
 
-        createBingo();
-    </script>
+    // ทแยงหลัก
+    let diagonal1 = true;
+
+    for(let i = 0; i < size; i++) {
+
+        if(!table.rows[i].cells[i].classList.contains('marked')) {
+            diagonal1 = false;
+        }
+
+    }
+
+    if(diagonal1) bingo = true;
+
+    // ทแยงรอง
+    let diagonal2 = true;
+
+    for(let i = 0; i < size; i++) {
+
+        if(!table.rows[i].cells[size - 1 - i].classList.contains('marked')) {
+            diagonal2 = false;
+        }
+
+    }
+
+    if(diagonal2) bingo = true;
+
+    document.getElementById('bingoMessage').style.display =
+        bingo ? 'block' : 'none';
+}
+
+createBingo();
+
+</script>
+
 </body>
 </html>
